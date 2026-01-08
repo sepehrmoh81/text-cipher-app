@@ -86,7 +86,7 @@ class _PersianCipherAppState extends State<PersianCipherApp> {
         useMaterial3: true,
       ),
       themeMode: _themeMode,
-      home: CipherHomePage(onThemeToggle: _toggleTheme, themeMode: _themeMode),
+      home: CipherHomePage(onThemeToggle: _toggleTheme, themeMode: _themeMode!),
       debugShowCheckedModeBanner: false,
     );
   }
