@@ -24,7 +24,7 @@
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Text Cipher">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
@@ -42,6 +42,12 @@
       margin: 0;
       padding: 0;
       background-color: #fdf7ff;
+
+      width: 100vw;
+      height: 100vh;
+
+      /* Remove the grey highlight tap color on iOS */
+      -webkit-tap-highlight-color: transparent;
     }
 
     #loading-container {

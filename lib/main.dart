@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -182,198 +184,216 @@ class _CipherHomePageState extends State<CipherHomePage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Persian Text Cipher'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(widget.themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: widget.onThemeToggle,
-            tooltip: 'Toggle theme',
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: AppBar(
+              title: const Text('Persian Text Cipher'),
+              centerTitle: true,
+              scrolledUnderElevation: 0.0,
+              backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: Icon(widget.themeMode == ThemeMode.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode),
+                  onPressed: widget.onThemeToggle,
+                  tooltip: 'Toggle theme',
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
+      extendBodyBehindAppBar: true,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth > 600;
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(isWide ? 24.0 : 16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: Center(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: isWide ? 550 : double.infinity,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Mode Controls Card
-                      Card(
-                        elevation: 0,
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+          return Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(isWide ? 24.0 : 16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: Center(
+                  child: Container(
+                    constraints: BoxConstraints(
+                      maxWidth: isWide ? 550 : double.infinity,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // AppBar Height
+                        SizedBox(height: kToolbarHeight,),
+                        // Mode Controls Card
+                        Card(
+                          elevation: 0,
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.flash_on, size: 20),
+                                const SizedBox(width: 8),
+                                const Text('Real-time Mode'),
+                                const SizedBox(width: 8),
+                                Switch(
+                                  value: _isRealtimeMode,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _isRealtimeMode = value;
+                                      if (value) _processText();
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Input Text Field
+                        TextField(
+                          controller: _inputController,
+                          maxLines: 6,
+                          decoration: InputDecoration(
+                            labelText: _isEnglishToPersian ? 'English Text' : 'Persian Text',
+                            hintText: _isEnglishToPersian
+                                ? 'Enter English text to encode...'
+                                : 'Enter Persian text to decode...',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: _showControlButtons
+                                ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => _inputController.clear(),
+                            )
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Action Buttons Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton.filledTonal(
+                              icon: const Icon(Icons.swap_vert),
+                              onPressed: _swapDirection,
+                              tooltip: 'Swap direction',
+                            ),
+                            const SizedBox(width: 12),
+                            if (!_isRealtimeMode)
+                              FilledButton.icon(
+                                onPressed: _processText,
+                                icon: const Icon(Icons.transform),
+                                label: Text(_isEnglishToPersian ? 'Encode' : 'Decode'),
+                              ),
+                            const SizedBox(width: 12),
+                            IconButton.filledTonal(
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: _clearAll,
+                              tooltip: 'Clear all',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Direction Indicator
+                        Center(
+                          child: Chip(
+                            avatar: const Icon(Icons.arrow_forward, size: 18),
+                            label: Text(
+                              _isEnglishToPersian ? 'English → Persian' : 'Persian → English',
+                              strutStyle: const StrutStyle(
+                                forceStrutHeight: true,
+                                height: 1.5,
+                              ),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Output Text Field
+                        TextField(
+                          controller: _outputController,
+                          maxLines: 6,
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            labelText: _isEnglishToPersian ? 'Persian Output' : 'English Output',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: _showControlButtons
+                                ? IconButton(
+                              icon: const Icon(Icons.copy),
+                              onPressed: _copyOutput,
+                              tooltip: 'Copy to clipboard',
+                            )
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Credits
+                        Center(
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              const Icon(Icons.flash_on, size: 20),
-                              const SizedBox(width: 8),
-                              const Text('Real-time Mode'),
-                              const SizedBox(width: 8),
-                              Switch(
-                                value: _isRealtimeMode,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isRealtimeMode = value;
-                                    if (value) _processText();
-                                  });
+                              Text(
+                                'Made with ❤️ and ☕, by ',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () async {
+                                  final uri = Uri.parse('https://github.com/sepehrmoh81');
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  }
                                 },
+                                child: Text(
+                                  'S',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                ' and ',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () async {
+                                  final uri = Uri.parse('https://github.com/sepehrmoh81');
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  }
+                                },
+                                child: Text(
+                                  'P',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Input Text Field
-                      TextField(
-                        controller: _inputController,
-                        maxLines: 6,
-                        decoration: InputDecoration(
-                          labelText: _isEnglishToPersian ? 'English Text' : 'Persian Text',
-                          hintText: _isEnglishToPersian
-                              ? 'Enter English text to encode...'
-                              : 'Enter Persian text to decode...',
-                          border: const OutlineInputBorder(),
-                          suffixIcon: _showControlButtons
-                              ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () => _inputController.clear(),
-                          )
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Action Buttons Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton.filledTonal(
-                            icon: const Icon(Icons.swap_vert),
-                            onPressed: _swapDirection,
-                            tooltip: 'Swap direction',
-                          ),
-                          const SizedBox(width: 12),
-                          if (!_isRealtimeMode)
-                            FilledButton.icon(
-                              onPressed: _processText,
-                              icon: const Icon(Icons.transform),
-                              label: Text(_isEnglishToPersian ? 'Encode' : 'Decode'),
-                            ),
-                          const SizedBox(width: 12),
-                          IconButton.filledTonal(
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: _clearAll,
-                            tooltip: 'Clear all',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Direction Indicator
-                      Center(
-                        child: Chip(
-                          avatar: const Icon(Icons.arrow_forward, size: 18),
-                          label: Text(
-                            _isEnglishToPersian ? 'English → Persian' : 'Persian → English',
-                            strutStyle: const StrutStyle(
-                              forceStrutHeight: true,
-                              height: 1.5,
-                            ),
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Output Text Field
-                      TextField(
-                        controller: _outputController,
-                        maxLines: 6,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          labelText: _isEnglishToPersian ? 'Persian Output' : 'English Output',
-                          border: const OutlineInputBorder(),
-                          suffixIcon: _showControlButtons
-                              ? IconButton(
-                            icon: const Icon(Icons.copy),
-                            onPressed: _copyOutput,
-                            tooltip: 'Copy to clipboard',
-                          )
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Credits
-                      Center(
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              'Made with ❤️ and ☕, by ',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                final uri = Uri.parse('https://github.com/sepehrmoh81');
-                                if (await canLaunchUrl(uri)) {
-                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                }
-                              },
-                              child: Text(
-                                'S',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              ' and ',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                final uri = Uri.parse('https://github.com/sepehrmoh81');
-                                if (await canLaunchUrl(uri)) {
-                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                }
-                              },
-                              child: Text(
-                                'P',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
