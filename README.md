@@ -32,7 +32,7 @@ A beautiful cross-platform mobile and web application that encodes English text 
 *Coming soon*
 
 ### Web
-[Launch Web App](#)
+[Launch Web App](https://sepehrmoh81.github.io/text-cipher-web/)
 
 ## How It Works
 

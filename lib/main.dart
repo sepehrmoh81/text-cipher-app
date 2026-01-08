@@ -30,7 +30,7 @@ class _PersianCipherAppState extends State<PersianCipherApp> {
     if(platformBrightness == Brightness.light) _themeMode = ThemeMode.light;
 
     return MaterialApp(
-      title: 'Persian Text Cipher',
+      title: 'Text Cipher',
       theme: ThemeData(
         fontFamily: 'GoogleSans',
         fontFamilyFallback: ['VazirmatnUI'],
