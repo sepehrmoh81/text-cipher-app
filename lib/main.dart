@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:text_cipher_app/utils/browser_color_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'cipher_engine.dart';
+import 'utils/cipher_engine.dart';
 
 void main() {
   runApp(const PersianCipherApp());
@@ -17,17 +19,29 @@ class PersianCipherApp extends StatefulWidget {
 
 class _PersianCipherAppState extends State<PersianCipherApp> {
   ThemeMode _themeMode = ThemeMode.dark;
+  final _lightBackground = Color(0xFFfdf7ff);
+  final _darkBackground = Color(0xFF141218);
 
   void _toggleTheme() {
     setState(() {
       _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     });
+
+    setWebColors();
+  }
+
+  void setWebColors() {
+    if(kIsWeb) {
+      setMetaThemeColor(
+          _themeMode == ThemeMode.light ? _lightBackground : _darkBackground);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final platformBrightness = MediaQuery.platformBrightnessOf(context);
     if(platformBrightness == Brightness.light) _themeMode = ThemeMode.light;
+    setWebColors();
 
     return MaterialApp(
       title: 'Text Cipher',
