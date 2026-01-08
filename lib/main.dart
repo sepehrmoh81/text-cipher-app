@@ -18,7 +18,7 @@ class PersianCipherApp extends StatefulWidget {
 }
 
 class _PersianCipherAppState extends State<PersianCipherApp> {
-  ThemeMode _themeMode = ThemeMode.dark;
+  ThemeMode? _themeMode;
   final _lightBackground = Color(0xFFfdf7ff);
   final _darkBackground = Color(0xFF141218);
 
@@ -39,9 +39,11 @@ class _PersianCipherAppState extends State<PersianCipherApp> {
 
   @override
   Widget build(BuildContext context) {
-    final platformBrightness = MediaQuery.platformBrightnessOf(context);
-    if(platformBrightness == Brightness.light) _themeMode = ThemeMode.light;
-    setWebColors();
+    if(_themeMode == null) {
+      final platformBrightness = MediaQuery.platformBrightnessOf(context);
+      if (platformBrightness == Brightness.light) _themeMode = ThemeMode.light;
+      setWebColors();
+    }
 
     return MaterialApp(
       title: 'Text Cipher',
