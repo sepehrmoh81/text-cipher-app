@@ -1,6 +1,6 @@
 {
-  "name": "TextCipher",
-  "short_name": "TextCipher",
+  "name": "Text Cipher",
+  "short_name": "Text Cipher",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#141218",
