@@ -41,7 +41,11 @@ class _PersianCipherAppState extends State<PersianCipherApp> {
   Widget build(BuildContext context) {
     if(_themeMode == null) {
       final platformBrightness = MediaQuery.platformBrightnessOf(context);
-      if (platformBrightness == Brightness.light) _themeMode = ThemeMode.light;
+      if (platformBrightness == Brightness.light) {
+        _themeMode = ThemeMode.light;
+      } else {
+        _themeMode = ThemeMode.dark;
+      }
       setWebColors();
     }
 
